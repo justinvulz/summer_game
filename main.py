@@ -24,7 +24,6 @@ res_sheet = wks_list[1]
 score_sheet = wks_list[2]
 for i in range(14):
     ans.append(int(ansSheet.cell('b' + str(i+1)).value))
-# print(ans)
 
 now_row = 1
 with open('test.txt', 'r') as f:
@@ -41,49 +40,56 @@ def init():
         datarange.update_values([[" " for _ in range (14)]])
         datarange.link()
 
-# init()
-print("Start from Row:", now_row)
+init()
+
+
+ans_times = [0 for _ in range(6)]
+
 while True:
-        # time.sleep(1)
-    # while res_sheet.cell('A' + str(now_row)).value != None:
-        this_row = res_sheet.get_row(now_row)
-        print("Row:",now_row,this_row)
-        group = this_row[1]
-        problem = this_row[2]
-        lower = this_row[3] 
-        upper = this_row[4] 
-        # print(group, problem, upper, lower)
-        if group not in ['1', '2', '3', '4', '5', '6']:
-            break
 
-        if problem == 15:
-            now_row += 1
-            continue
-        
-        try :
-            upper = int(upper)
-            lower = int(lower)
-        except:
-            now_row += 1
-            continue
+    this_row = res_sheet.get_row(now_row)
+    print("Row:",now_row,this_row)
+    group = this_row[1]
+    problem = this_row[2]
+    lower = this_row[3] 
+    upper = this_row[4] 
 
-        if ( lower <= ans[int(problem)-1] <= upper):
-            score = math.floor(upper/lower)
-        else:
-            score = "X"
+    if group not in ['1', '2', '3', '4', '5', '6']:
+        time.sleep(1)
+        break
 
-        group_index = int(group) +1
-        problem_index = int(problem) +1
-        problem_char  = chr(64 + problem_index)
-        
-        cell = pygsheets.Cell(str(problem_char) + str(group_index))
-        cell.set_horizontal_alignment(HorizontalAlignment.CENTER)
-        cell.value = score
-        cell.color = GROUP_COLOR[int(group)-1] if score != "X" else (1, 0, 0)
-        cell.link(score_sheet)
-        cell.set_text_format('bold', True)
-        cell.update()
-        print("Row:",now_row,"is done. At",str(problem_char) + str(group_index), "Score:", score)
+    if problem == 15:
         now_row += 1
+        continue
+    
+    try :
+        upper = int(upper)
+        lower = int(lower)
+    except:
+        now_row += 1
+        continue
+
+    if ( lower <= ans[int(problem)-1] <= upper):
+        score = math.floor(upper/lower)
+    else:
+        score = "X"
+
+    group_index = int(group) +1
+    problem_index = int(problem) +1
+    problem_char  = chr(64 + problem_index)
+    
+    cell = pygsheets.Cell(str(problem_char) + str(group_index))
+    cell.set_horizontal_alignment(HorizontalAlignment.CENTER)
+    cell.value = score
+    cell.color = GROUP_COLOR[int(group)-1] if score != "X" else (1, 0, 0)
+    cell.link(score_sheet)
+    cell.set_text_format('bold', True)
+    cell.update()
+    ans_times[int(group)-1] += 1
+    cell = score_sheet.cell('R'+str(group_index))
+    cell.value = ans_times[int(group)-1]
+    cell.update()
+    print("Row:",now_row,"is done. At",str(problem_char) + str(group_index), "Score:", score)
+    now_row += 1
 
 
